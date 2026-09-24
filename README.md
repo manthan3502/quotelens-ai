@@ -1,6 +1,6 @@
 # QuoteLens AI
 
-QuoteLens AI is a quotation comparison workspace for turning inconsistent vendor documents into reviewable structured data and deterministic cost comparisons. The current foundation includes Supabase authentication, persistent comparisons, and private PDF/image quotation uploads with short-lived signed file access.
+QuoteLens AI is a quotation comparison workspace for turning inconsistent vendor documents into reviewable structured data and deterministic cost comparisons. The current foundation includes Supabase authentication, private PDF/image quotation uploads, short-lived signed file access, and server-side Gemini extraction validated with Zod.
 
 ## Local setup
 
@@ -13,3 +13,5 @@ QuoteLens AI is a quotation comparison workspace for turning inconsistent vendor
 The full milestone sequence and current scope are in `docs/BUILD_PLAN.md`.
 
 Day 2 adds `supabase/migrations/202609240001_secure_quotation_uploads.sql`. Apply it after the Day 1 migration before testing quotation uploads.
+
+Day 3 adds `supabase/migrations/202609240002_extraction_status_details.sql`. Apply it before extraction, then set `GEMINI_API_KEY` and optionally override `GEMINI_MODEL` in `.env.local`. Automated tests use a mocked generator and never call Gemini.

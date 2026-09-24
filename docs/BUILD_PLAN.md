@@ -18,7 +18,7 @@ Definition of done: a configured user can sign in, create an empty comparison, s
 
 Add validated PDF/JPG/JPEG/PNG uploads for 2–5 files, private storage paths, quotation records, and signed document access.
 
-## Day 3 — Gemini extraction
+## Day 3 — Gemini extraction (complete)
 
 Add the Zod quotation schema, server-only `@google/genai` extraction service, structured prompt, validation, status handling, and manual retry.
 

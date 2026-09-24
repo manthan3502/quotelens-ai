@@ -2,23 +2,34 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UploadForm } from "@/components/quotation/upload-form";
 import { DeleteQuotationButton } from "@/components/quotation/delete-quotation-button";
+import { ExtractionButton } from "@/components/quotation/extraction-button";
 import { formatFileSize, MAX_QUOTATIONS } from "@/src/lib/files/quotationFiles";
 import { createClient } from "@/src/lib/supabase/server";
 import { deleteQuotation, uploadQuotations } from "./upload-actions";
+import { extractQuotationRecord } from "./extraction-actions";
 
 type ComparisonPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ uploaded?: string; deleted?: string }>;
 };
 type Comparison = { id: string; title: string; description: string | null; status: string; created_at: string };
-type Quotation = { id: string; original_filename: string; mime_type: string; file_size: number; created_at: string };
+type Quotation = {
+  id: string;
+  original_filename: string;
+  mime_type: string;
+  file_size: number;
+  created_at: string;
+  extraction_status: "pending" | "extracting" | "completed" | "failed";
+  extraction_error: string | null;
+  vendor_name: string | null;
+};
 
 export default async function ComparisonPage({ params, searchParams }: ComparisonPageProps) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
   const [{ data, error }, { data: quotationData, error: quotationError }] = await Promise.all([
     supabase.from("comparisons").select("id,title,description,status,created_at").eq("id", id).single(),
-    supabase.from("quotations").select("id,original_filename,mime_type,file_size,created_at").eq("comparison_id", id).order("created_at", { ascending: true }),
+    supabase.from("quotations").select("id,original_filename,mime_type,file_size,created_at,extraction_status,extraction_error,vendor_name").eq("comparison_id", id).order("created_at", { ascending: true }),
   ]);
 
   if (error || !data) notFound();
@@ -55,9 +66,11 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
                 <span className="file-mark" aria-hidden="true">{quotation.mime_type === "application/pdf" ? "PDF" : "IMG"}</span>
                 <div className="quotation-details">
                   <strong>{quotation.original_filename}</strong>
-                  <span className="muted">{formatFileSize(quotation.file_size)} · Stored securely</span>
+                  <span className="muted">{formatFileSize(quotation.file_size)} · {quotation.vendor_name ?? "Stored securely"}</span>
+                  {quotation.extraction_error ? <span className="status-error">{quotation.extraction_error}</span> : null}
                 </div>
                 <div className="file-actions">
+                  {quotation.extraction_status !== "completed" ? <ExtractionButton action={extractQuotationRecord.bind(null, id, quotation.id)} retry={quotation.extraction_status === "failed"} /> : <span className="badge">Extracted</span>}
                   <a className="button secondary compact" href={`/api/quotations/${quotation.id}/file`} target="_blank" rel="noreferrer">Preview</a>
                   <a className="button ghost compact" href={`/api/quotations/${quotation.id}/file?download=1`}>Download</a>
                   <DeleteQuotationButton action={deleteQuotation.bind(null, id, quotation.id)} filename={quotation.original_filename} />
@@ -76,8 +89,8 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
 
       {quotations.length >= 2 ? (
         <section className="next-step-card">
-          <div><p className="eyebrow">Files ready</p><h2 style={{ margin: 0, fontSize: 22 }}>Extraction begins on Day 3</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Your private source files are saved. No AI processing has been started.</p></div>
-          <span className="badge">Awaiting extraction</span>
+          <div><p className="eyebrow">Extraction</p><h2 style={{ margin: 0, fontSize: 22 }}>{quotations.every((quotation) => quotation.extraction_status === "completed") ? "All quotations are ready for review" : "Extract each source document"}</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Gemini extracts factual fields into a schema. You will verify every value before calculations.</p></div>
+          <span className="badge">{quotations.filter((quotation) => quotation.extraction_status === "completed").length}/{quotations.length} extracted</span>
         </section>
       ) : null}
     </div>

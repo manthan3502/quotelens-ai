@@ -164,6 +164,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .file-actions { display: flex; align-items: center; gap: 5px; }
 .file-actions form { position: relative; }
 .delete-error { position: absolute; z-index: 2; top: calc(100% + 8px); right: 0; width: 260px; padding: 9px; border: 1px solid #eed1cb; border-radius: 8px; background: #fff7f5; color: #8f2f1d; font-size: 0.75rem; box-shadow: 0 8px 25px rgba(23, 34, 30, 0.12); }
+.extraction-control { position: relative; }
+.extraction-success { position: absolute; z-index: 2; top: calc(100% + 8px); right: 0; width: 240px; padding: 9px; border: 1px solid #cbe3d4; border-radius: 8px; background: #f2faf5; color: var(--accent-dark); font-size: 0.75rem; box-shadow: 0 8px 25px rgba(23, 34, 30, 0.12); }
+.status-error { margin-top: 6px !important; color: #8f2f1d; white-space: normal !important; }
 
 .limit-message, .next-step-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid var(--line); border-radius: 14px; background: white; }
 .limit-message { padding: 20px; }
