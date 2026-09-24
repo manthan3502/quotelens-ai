@@ -20,7 +20,7 @@ export default function Home() {
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Link className="button" href="/login">Try QuoteLens</Link>
-            <a className="button secondary" href="#workflow">See how it works</a>
+            <Link className="button secondary" href="/demo">View sample comparison</Link>
           </div>
         </div>
 

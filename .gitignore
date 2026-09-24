@@ -14,6 +14,8 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
 
 # editor and OS files
 .DS_Store

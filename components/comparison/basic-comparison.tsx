@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { extractedQuotationSchema } from "@/src/lib/ai/schema";
 import { compareQuotes } from "@/src/lib/pricing/compareQuotes";
+import { PrintButton } from "@/components/comparison/print-button";
 
 type QuoteRow = { id: string; original_filename: string; verified_json: unknown };
 
@@ -17,7 +18,7 @@ function term(value: number | null | undefined, unit: string, fallback: string |
   return value !== null && value !== undefined ? `${value} ${unit}` : fallback ?? "Not found";
 }
 
-export function BasicComparison({ comparisonId, title, quotations }: { comparisonId: string; title: string; quotations: QuoteRow[] }) {
+export function BasicComparison({ comparisonId, title, quotations, demo = false }: { comparisonId: string; title: string; quotations: QuoteRow[]; demo?: boolean }) {
   const inputs = quotations.flatMap((row) => {
     const parsed = extractedQuotationSchema.safeParse(row.verified_json);
     return parsed.success ? [{ id: row.id, filename: row.original_filename, quote: parsed.data }] : [];
@@ -33,7 +34,7 @@ export function BasicComparison({ comparisonId, title, quotations }: { compariso
       <Link href="/dashboard" className="muted" style={{ fontSize: 14 }}>← Dashboard</Link>
       <header className="comparison-header">
         <div><p className="eyebrow">Verified comparison</p><h1>{title}</h1><p className="muted">Calculated totals use confirmed values. Factual differences are shown without choosing a vendor.</p></div>
-        <Link className="button secondary" href={`/comparisons/${comparisonId}/review`}>Edit extracted data</Link>
+        <div className="comparison-actions"><PrintButton />{demo ? <Link className="button secondary" href="/login">Create your comparison</Link> : <Link className="button secondary" href={`/comparisons/${comparisonId}/review`}>Edit extracted data</Link>}</div>
       </header>
 
       {comparison.incompatibleCurrencies ? <div className="comparison-alert"><strong>Currencies are not fully compatible.</strong><span>Costs are compared only among complete quotations using the same currency. No exchange-rate assumptions are made.</span></div> : null}
@@ -56,7 +57,7 @@ export function BasicComparison({ comparisonId, title, quotations }: { compariso
       </section>
 
       <section className="comparison-section warning-columns">
-        {comparison.quotes.map((item) => <article className="vendor-warning-card" key={item.id}><div><strong>{item.quote.vendor.name ?? "Unnamed vendor"}</strong><a href={`/api/quotations/${item.id}/file`} target="_blank" rel="noreferrer">Open source document ↗</a></div>{item.warnings.length ? <ul>{item.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul> : <p className="success-text">No factual warnings from confirmed data.</p>}{item.quote.ambiguousFields.length ? <details><summary>Ambiguous source fields</summary><ul>{item.quote.ambiguousFields.map((field) => <li key={field}>{field}</li>)}</ul></details> : null}</article>)}
+        {comparison.quotes.map((item) => <article className="vendor-warning-card" key={item.id}><div><strong>{item.quote.vendor.name ?? "Unnamed vendor"}</strong>{demo ? <span className="muted">Sample source</span> : <a href={`/api/quotations/${item.id}/file`} target="_blank" rel="noreferrer">Open source document ↗</a>}</div>{item.warnings.length ? <ul>{item.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul> : <p className="success-text">No factual warnings from confirmed data.</p>}{item.quote.ambiguousFields.length ? <details><summary>Ambiguous source fields</summary><ul>{item.quote.ambiguousFields.map((field) => <li key={field}>{field}</li>)}</ul></details> : null}</article>)}
       </section>
     </div>
   );

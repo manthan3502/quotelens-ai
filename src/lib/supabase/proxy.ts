@@ -4,6 +4,11 @@ import { getSupabaseConfig } from "@/src/lib/supabase/env";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const hasSupabaseSession = request.cookies.getAll().some((cookie) =>
+    cookie.name.startsWith("sb-") && cookie.name.includes("-auth-token"),
+  );
+  if (!hasSupabaseSession) return response;
+
   const { url, anonKey } = getSupabaseConfig();
 
   const supabase = createServerClient(url, anonKey, {

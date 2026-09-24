@@ -30,7 +30,7 @@ Add editable human verification, verified JSON persistence, minor-unit pricing c
 
 Add factual warnings and labels, source-versus-computed mismatch handling, terms comparison, persistence polish, and responsive states.
 
-## Day 6 — Engineering quality
+## Day 6 — Engineering quality (complete)
 
 Add broader tests, GitHub Actions, sample quotations, printable reporting, security documentation, architecture documentation, and a complete README.
 
