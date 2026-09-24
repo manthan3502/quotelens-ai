@@ -1,6 +1,6 @@
 # QuoteLens AI
 
-QuoteLens AI is a quotation comparison workspace for turning inconsistent vendor documents into reviewable structured data and deterministic cost comparisons. The app includes Supabase authentication, private PDF/image quotation uploads, short-lived signed file access, server-side Gemini extraction validated with Zod, mandatory human verification, and minor-unit financial calculations.
+QuoteLens AI is a quotation comparison workspace for turning inconsistent vendor documents into reviewable structured data and deterministic cost comparisons. The app includes Supabase authentication, private PDF/image quotation uploads, short-lived signed file access, server-side Gemini extraction validated with Zod, mandatory human verification, minor-unit financial calculations, and factual side-by-side vendor comparisons.
 
 ## Local setup
 

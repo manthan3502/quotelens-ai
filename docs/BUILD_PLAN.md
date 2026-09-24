@@ -26,7 +26,7 @@ Add the Zod quotation schema, server-only `@google/genai` extraction service, st
 
 Add editable human verification, verified JSON persistence, minor-unit pricing calculations with unit tests, and the first comparison table.
 
-## Day 5 — Comparison experience
+## Day 5 — Comparison experience (complete)
 
 Add factual warnings and labels, source-versus-computed mismatch handling, terms comparison, persistence polish, and responsive states.
 
