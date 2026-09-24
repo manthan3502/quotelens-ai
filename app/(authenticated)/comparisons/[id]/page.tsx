@@ -1,21 +1,30 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { UploadForm } from "@/components/quotation/upload-form";
+import { formatFileSize, MAX_QUOTATIONS } from "@/src/lib/files/quotationFiles";
 import { createClient } from "@/src/lib/supabase/server";
+import { uploadQuotations } from "./upload-actions";
 
-type ComparisonPageProps = { params: Promise<{ id: string }> };
+type ComparisonPageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ uploaded?: string }>;
+};
 type Comparison = { id: string; title: string; description: string | null; status: string; created_at: string };
+type Quotation = { id: string; original_filename: string; mime_type: string; file_size: number; created_at: string };
 
-export default async function ComparisonPage({ params }: ComparisonPageProps) {
-  const { id } = await params;
+export default async function ComparisonPage({ params, searchParams }: ComparisonPageProps) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("comparisons")
-    .select("id,title,description,status,created_at")
-    .eq("id", id)
-    .single();
+  const [{ data, error }, { data: quotationData, error: quotationError }] = await Promise.all([
+    supabase.from("comparisons").select("id,title,description,status,created_at").eq("id", id).single(),
+    supabase.from("quotations").select("id,original_filename,mime_type,file_size,created_at").eq("comparison_id", id).order("created_at", { ascending: true }),
+  ]);
 
   if (error || !data) notFound();
   const comparison = data as Comparison;
+  const quotations = (quotationData ?? []) as Quotation[];
+  const uploadAction = uploadQuotations.bind(null, id);
+  const uploadedCount = Number.parseInt(query.uploaded ?? "0", 10);
 
   return (
     <div className="container" style={{ padding: "58px 0 96px" }}>
@@ -28,11 +37,46 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         </div>
       </section>
 
-      <section className="card" style={{ marginTop: 42, padding: "clamp(28px, 7vw, 70px)", textAlign: "center", borderStyle: "dashed" }}>
-        <div aria-hidden="true" style={{ width: 74, height: 58, margin: "0 auto 22px", borderRadius: 12, background: "var(--soft)", display: "grid", placeItems: "center", color: "var(--accent)", fontSize: 28, fontWeight: 900 }}>+</div>
-        <h2 style={{ margin: 0, fontSize: 24 }}>Your comparison is ready</h2>
-        <p className="muted" style={{ maxWidth: 500, margin: "12px auto 0", lineHeight: 1.65 }}>This empty workspace is saved and can be reopened from your dashboard. Secure quotation uploads are the next milestone.</p>
+      {uploadedCount > 0 ? <p className="success-message" role="status">{uploadedCount} quotation{uploadedCount === 1 ? "" : "s"} uploaded securely.</p> : null}
+      {quotationError ? <p className="form-error" role="alert" style={{ marginTop: 32 }}>Could not load the quotation files. Refresh and try again.</p> : null}
+
+      <section style={{ marginTop: 42 }}>
+        <div className="section-heading">
+          <div><p className="eyebrow">Source documents</p><h2 style={{ margin: 0, fontSize: 26 }}>Quotations <span className="muted">{quotations.length}/{MAX_QUOTATIONS}</span></h2></div>
+          <span className="privacy-note">Private storage</span>
+        </div>
+
+        {quotations.length > 0 ? (
+          <div className="quotation-list">
+            {quotations.map((quotation) => (
+              <article className="quotation-card" key={quotation.id}>
+                <span className="file-mark" aria-hidden="true">{quotation.mime_type === "application/pdf" ? "PDF" : "IMG"}</span>
+                <div className="quotation-details">
+                  <strong>{quotation.original_filename}</strong>
+                  <span className="muted">{formatFileSize(quotation.file_size)} · Stored securely</span>
+                </div>
+                <div className="file-actions">
+                  <a className="button secondary compact" href={`/api/quotations/${quotation.id}/file`} target="_blank" rel="noreferrer">Preview</a>
+                  <a className="button ghost compact" href={`/api/quotations/${quotation.id}/file?download=1`}>Download</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {quotations.length < MAX_QUOTATIONS ? (
+          <div style={{ marginTop: quotations.length > 0 ? 22 : 0 }}><UploadForm action={uploadAction} existingCount={quotations.length} /></div>
+        ) : (
+          <div className="limit-message"><strong>Five quotations added.</strong><span className="muted">This comparison has reached the v1 limit.</span></div>
+        )}
       </section>
+
+      {quotations.length >= 2 ? (
+        <section className="next-step-card">
+          <div><p className="eyebrow">Files ready</p><h2 style={{ margin: 0, fontSize: 22 }}>Extraction begins on Day 3</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Your private source files are saved. No AI processing has been started.</p></div>
+          <span className="badge">Awaiting extraction</span>
+        </section>
+      ) : null}
     </div>
   );
 }

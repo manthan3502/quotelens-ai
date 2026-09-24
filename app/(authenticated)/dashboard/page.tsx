@@ -7,6 +7,7 @@ type Comparison = {
   description: string | null;
   status: "draft" | "extracting" | "review" | "completed";
   created_at: string;
+  quotations: Array<{ count: number }>;
 };
 
 export default async function DashboardPage() {
@@ -14,7 +15,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("comparisons")
-    .select("id,title,description,status,created_at")
+    .select("id,title,description,status,created_at,quotations(count)")
     .order("created_at", { ascending: false })
     .limit(12);
   const comparisons = (data ?? []) as Comparison[];
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
                 <div style={{ minWidth: 0 }}>
                   <strong style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{comparison.title}</strong>
                   <span className="muted" style={{ display: "block", marginTop: 6, fontSize: 13 }}>
-                    {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(comparison.created_at))} · 0 quotations
+                    {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(comparison.created_at))} · {comparison.quotations[0]?.count ?? 0} quotation{(comparison.quotations[0]?.count ?? 0) === 1 ? "" : "s"}
                   </span>
                 </div>
                 <span className="badge">{comparison.status}</span>

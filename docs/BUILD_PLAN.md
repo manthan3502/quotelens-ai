@@ -2,7 +2,7 @@
 
 This plan follows the seven-day sequence in the product brief. Work advances only after the current milestone is verified.
 
-## Day 1 — Foundation (current milestone)
+## Day 1 — Foundation (complete)
 
 - Initialize a Next.js App Router project with TypeScript, Tailwind CSS, and linting.
 - Add the minimum Supabase browser/server clients and environment-variable contract.
@@ -14,7 +14,7 @@ This plan follows the seven-day sequence in the product brief. Work advances onl
 
 Definition of done: a configured user can sign in, create an empty comparison, see it on the dashboard, and reopen it.
 
-## Day 2 — Secure uploads
+## Day 2 — Secure uploads (complete)
 
 Add validated PDF/JPG/JPEG/PNG uploads for 2–5 files, private storage paths, quotation records, and signed document access.
 
