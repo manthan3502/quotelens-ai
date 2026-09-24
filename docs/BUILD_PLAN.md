@@ -22,7 +22,7 @@ Add validated PDF/JPG/JPEG/PNG uploads for 2–5 files, private storage paths, q
 
 Add the Zod quotation schema, server-only `@google/genai` extraction service, structured prompt, validation, status handling, and manual retry.
 
-## Day 4 — Review and deterministic pricing
+## Day 4 — Review and deterministic pricing (complete)
 
 Add editable human verification, verified JSON persistence, minor-unit pricing calculations with unit tests, and the first comparison table.
 

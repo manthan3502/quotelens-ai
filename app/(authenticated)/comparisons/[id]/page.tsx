@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { UploadForm } from "@/components/quotation/upload-form";
 import { DeleteQuotationButton } from "@/components/quotation/delete-quotation-button";
 import { ExtractionButton } from "@/components/quotation/extraction-button";
+import { BasicComparison } from "@/components/comparison/basic-comparison";
 import { formatFileSize, MAX_QUOTATIONS } from "@/src/lib/files/quotationFiles";
 import { createClient } from "@/src/lib/supabase/server";
 import { deleteQuotation, uploadQuotations } from "./upload-actions";
@@ -22,6 +23,7 @@ type Quotation = {
   extraction_status: "pending" | "extracting" | "completed" | "failed";
   extraction_error: string | null;
   vendor_name: string | null;
+  verified_json: unknown;
 };
 
 export default async function ComparisonPage({ params, searchParams }: ComparisonPageProps) {
@@ -29,7 +31,7 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
   const supabase = await createClient();
   const [{ data, error }, { data: quotationData, error: quotationError }] = await Promise.all([
     supabase.from("comparisons").select("id,title,description,status,created_at").eq("id", id).single(),
-    supabase.from("quotations").select("id,original_filename,mime_type,file_size,created_at,extraction_status,extraction_error,vendor_name").eq("comparison_id", id).order("created_at", { ascending: true }),
+    supabase.from("quotations").select("id,original_filename,mime_type,file_size,created_at,extraction_status,extraction_error,vendor_name,verified_json").eq("comparison_id", id).order("created_at", { ascending: true }),
   ]);
 
   if (error || !data) notFound();
@@ -37,6 +39,10 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
   const quotations = (quotationData ?? []) as Quotation[];
   const uploadAction = uploadQuotations.bind(null, id);
   const uploadedCount = Number.parseInt(query.uploaded ?? "0", 10);
+
+  if (comparison.status === "completed" && quotations.length >= 2 && quotations.every((quotation) => quotation.verified_json)) {
+    return <BasicComparison comparisonId={id} title={comparison.title} quotations={quotations} />;
+  }
 
   return (
     <div className="container" style={{ padding: "58px 0 96px" }}>
@@ -90,7 +96,7 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
       {quotations.length >= 2 ? (
         <section className="next-step-card">
           <div><p className="eyebrow">Extraction</p><h2 style={{ margin: 0, fontSize: 22 }}>{quotations.every((quotation) => quotation.extraction_status === "completed") ? "All quotations are ready for review" : "Extract each source document"}</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Gemini extracts factual fields into a schema. You will verify every value before calculations.</p></div>
-          <span className="badge">{quotations.filter((quotation) => quotation.extraction_status === "completed").length}/{quotations.length} extracted</span>
+          {quotations.every((quotation) => quotation.extraction_status === "completed") ? <Link className="button" href={`/comparisons/${id}/review`}>Review extracted data</Link> : <span className="badge">{quotations.filter((quotation) => quotation.extraction_status === "completed").length}/{quotations.length} extracted</span>}
         </section>
       ) : null}
     </div>
