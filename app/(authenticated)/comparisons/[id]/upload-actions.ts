@@ -94,3 +94,42 @@ export async function uploadQuotations(
   revalidatePath("/dashboard");
   redirect(`/comparisons/${comparisonId}?uploaded=${files.length}`);
 }
+
+export async function deleteQuotation(
+  comparisonId: string,
+  quotationId: string,
+  previousState: UploadState,
+): Promise<UploadState> {
+  void previousState;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/login?next=/comparisons/${comparisonId}`);
+
+  const { data: quotation } = await supabase
+    .from("quotations")
+    .select("id,storage_path")
+    .eq("id", quotationId)
+    .eq("comparison_id", comparisonId)
+    .single();
+  if (!quotation) return { status: "error", message: "This quotation is unavailable." };
+
+  const { error: storageError } = await supabase.storage.from("quotations").remove([quotation.storage_path]);
+  if (storageError) {
+    console.error("quotation_delete_failed", { comparisonId, quotationId, userId: user.id, stage: "storage", message: storageError.message });
+    return { status: "error", message: "Could not remove the private file. Please try again." };
+  }
+
+  const { error: recordError } = await supabase
+    .from("quotations")
+    .delete()
+    .eq("id", quotationId)
+    .eq("comparison_id", comparisonId);
+  if (recordError) {
+    console.error("quotation_delete_failed", { comparisonId, quotationId, userId: user.id, stage: "database", message: recordError.message });
+    return { status: "error", message: "The file was removed, but its record could not be deleted. Refresh and try again." };
+  }
+
+  revalidatePath(`/comparisons/${comparisonId}`);
+  revalidatePath("/dashboard");
+  redirect(`/comparisons/${comparisonId}?deleted=1`);
+}

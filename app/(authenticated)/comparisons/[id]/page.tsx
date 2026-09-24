@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UploadForm } from "@/components/quotation/upload-form";
+import { DeleteQuotationButton } from "@/components/quotation/delete-quotation-button";
 import { formatFileSize, MAX_QUOTATIONS } from "@/src/lib/files/quotationFiles";
 import { createClient } from "@/src/lib/supabase/server";
-import { uploadQuotations } from "./upload-actions";
+import { deleteQuotation, uploadQuotations } from "./upload-actions";
 
 type ComparisonPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ uploaded?: string }>;
+  searchParams: Promise<{ uploaded?: string; deleted?: string }>;
 };
 type Comparison = { id: string; title: string; description: string | null; status: string; created_at: string };
 type Quotation = { id: string; original_filename: string; mime_type: string; file_size: number; created_at: string };
@@ -38,6 +39,7 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
       </section>
 
       {uploadedCount > 0 ? <p className="success-message" role="status">{uploadedCount} quotation{uploadedCount === 1 ? "" : "s"} uploaded securely.</p> : null}
+      {query.deleted === "1" ? <p className="success-message" role="status">Quotation deleted.</p> : null}
       {quotationError ? <p className="form-error" role="alert" style={{ marginTop: 32 }}>Could not load the quotation files. Refresh and try again.</p> : null}
 
       <section style={{ marginTop: 42 }}>
@@ -58,6 +60,7 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
                 <div className="file-actions">
                   <a className="button secondary compact" href={`/api/quotations/${quotation.id}/file`} target="_blank" rel="noreferrer">Preview</a>
                   <a className="button ghost compact" href={`/api/quotations/${quotation.id}/file?download=1`}>Download</a>
+                  <DeleteQuotationButton action={deleteQuotation.bind(null, id, quotation.id)} filename={quotation.original_filename} />
                 </div>
               </article>
             ))}
