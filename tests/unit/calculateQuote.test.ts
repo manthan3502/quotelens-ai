@@ -46,6 +46,28 @@ describe("calculateQuote", () => {
     expect(calculateQuote(quote).computedGrandTotal).toBe(520055.25);
   });
 
+  it("treats an empty optional installation placeholder as no charge", () => {
+    const quote = makeExtractedQuotation({
+      installation: { amount: null, currency: "INR", rawText: null },
+    });
+    expect(calculateQuote(quote)).toMatchObject({
+      incomplete: false,
+      missingForCalculation: [],
+      computedGrandTotal: 613600,
+    });
+  });
+
+  it("requires an amount when an optional charge is mentioned but unresolved", () => {
+    const quote = makeExtractedQuotation({
+      installation: { amount: null, currency: "INR", rawText: "Installation extra" },
+    });
+    expect(calculateQuote(quote)).toMatchObject({
+      incomplete: true,
+      computedGrandTotal: null,
+      missingForCalculation: ["installation"],
+    });
+  });
+
   it("handles decimal money without binary-float drift", () => {
     const quote = makeExtractedQuotation({
       lineItems: [

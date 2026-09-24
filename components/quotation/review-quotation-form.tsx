@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useState } from "react";
 import type { ExtractedQuotation, Money, QuoteLineItem } from "@/src/lib/ai/schema";
+import { calculateQuote } from "@/src/lib/pricing/calculateQuote";
 import { initialReviewState, type ReviewState } from "@/src/lib/review/reviewState";
 
 type ReviewAction = (state: ReviewState, formData: FormData) => Promise<ReviewState>;
@@ -111,10 +112,30 @@ function TextareaInput({ label, value, onChange }: { label: string; value: strin
   return <div className="field"><label htmlFor={id}>{label}</label><textarea id={id} value={value} onChange={(event) => onChange(event.target.value)} /></div>;
 }
 
+function calculationFieldLabel(path: string) {
+  const lineField = /^lineItems\.(\d+)\.(.+)$/.exec(path);
+  if (lineField) {
+    const field = lineField[2] === "quantity" ? "quantity"
+      : lineField[2] === "unitPrice" ? "unit price"
+        : lineField[2] === "unitPrice.currency" ? "unit price currency"
+          : lineField[2];
+    return `Item ${Number(lineField[1]) + 1} ${field}`;
+  }
+  const labels: Record<string, string> = {
+    currency: "Quotation currency",
+    tax: "Tax rate or amount",
+    "lineItems.taxPercent": "Tax rate for every line item, or a quotation-level tax rate or amount",
+    shipping: "Shipping amount",
+    installation: "Installation amount",
+  };
+  return labels[path] ?? path;
+}
+
 export function ReviewQuotationForm({ initial, action, filename, verified }: { initial: ExtractedQuotation; action: ReviewAction; filename: string; verified: boolean }) {
   const taxIncludedId = useId();
   const [quote, setQuote] = useState(() => normalizeQuotation(initial));
   const [state, formAction, pending] = useActionState(action, initialReviewState);
+  const calculation = calculateQuote(quote);
   const updateLine = (index: number, update: (item: QuoteLineItem) => QuoteLineItem) => setQuote((current) => ({ ...current, lineItems: current.lineItems.map((item, itemIndex) => itemIndex === index ? update(item) : item) }));
 
   return (
@@ -183,6 +204,7 @@ export function ReviewQuotationForm({ initial, action, filename, verified }: { i
         <TextareaInput label="Ambiguous fields, one per line" value={quote.ambiguousFields.join("\n")} onChange={(value) => setQuote({ ...quote, ambiguousFields: value.split("\n").map((item) => item.trim()).filter(Boolean) })} />
       </div>{quote.extractionWarnings.length ? <div className="warning-list"><strong>Extraction warnings</strong><ul>{quote.extractionWarnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div> : null}</fieldset>
 
+      {calculation.incomplete ? <div className="form-error" role="alert"><strong>Required before totals can be calculated:</strong><ul>{calculation.missingForCalculation.map((path) => <li key={path}>{calculationFieldLabel(path)}</li>)}</ul></div> : null}
       {state.message ? <p className={state.status === "error" ? "form-error" : "success-message"} role="status">{state.message}</p> : null}
       <button className="button" type="submit" disabled={pending}>{pending ? "Saving verified data…" : verified ? "Save verified changes" : "Confirm verified data"}</button>
     </form>

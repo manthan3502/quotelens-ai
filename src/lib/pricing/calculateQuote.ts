@@ -33,6 +33,10 @@ function unique(items: string[]) {
   return [...new Set(items)];
 }
 
+function pathMatchesField(path: string, field: string) {
+  return path === field || path.startsWith(`${field}.`);
+}
+
 function moneyToMinor(
   money: Money | undefined,
   expectedCurrency: string,
@@ -126,7 +130,12 @@ export function calculateQuote(quote: ExtractedQuotation): CalculatedQuote {
 
   const extras: number[] = [];
   for (const [label, money] of [["shipping", quote.shipping], ["installation", quote.installation]] as const) {
-    const value = moneyToMinor(money, calculationCurrency, label, missing, Boolean(money));
+    // Review normalization creates empty Money objects for optional charges. A
+    // blank placeholder carries no evidence of a charge; it is not a missing
+    // arithmetic input. Mentioned or ambiguous charges still require an amount.
+    const requiresAmount = Boolean(money?.rawText)
+      || quote.ambiguousFields.some((path) => pathMatchesField(path, label));
+    const value = moneyToMinor(money, calculationCurrency, label, missing, requiresAmount);
     if (value !== null) extras.push(value);
   }
   quote.otherCharges?.forEach((charge, index) => {

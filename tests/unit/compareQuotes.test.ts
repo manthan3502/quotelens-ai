@@ -12,6 +12,38 @@ function input(id: string, amount: number, currency = "INR") {
 }
 
 describe("compareQuotes", () => {
+  it("calculates the verified Apex and NorthStar totals with blank installation placeholders", () => {
+    const apex = makeExtractedQuotation({
+      vendor: { name: "Apex Technologies LLP" },
+      lineItems: [{ description: "Quoted equipment", quantity: 1, unitPrice: { amount: 618500, currency: "INR" } }],
+      subtotalShown: { amount: 618500, currency: "INR" },
+      tax: { type: "GST", percent: 18, amountShown: { amount: 111330, currency: "INR" }, includedInPrice: false },
+      shipping: { amount: 0, currency: "INR" },
+      installation: { amount: null, currency: "INR", rawText: null },
+      grandTotalShown: { amount: 729830, currency: "INR" },
+    });
+    const northStar = makeExtractedQuotation({
+      vendor: { name: "NorthStar Systems Pvt. Ltd." },
+      lineItems: [{ description: "Quoted equipment", quantity: 1, unitPrice: { amount: 626500, currency: "INR" } }],
+      subtotalShown: { amount: 626500, currency: "INR" },
+      tax: { type: "GST", percent: 18, amountShown: { amount: 112770, currency: "INR" }, includedInPrice: false },
+      shipping: { amount: 3500, currency: "INR" },
+      installation: { amount: null, currency: "INR", rawText: null },
+      grandTotalShown: { amount: 742770, currency: "INR" },
+    });
+
+    const comparison = compareQuotes([
+      { id: "apex", filename: "apex.pdf", quote: apex },
+      { id: "northstar", filename: "northstar.pdf", quote: northStar },
+    ]);
+
+    expect(comparison.quotes.map((quote) => quote.calculated.computedGrandTotal)).toEqual([729830, 742770]);
+    expect(comparison.quotes.map((quote) => quote.calculated.incomplete)).toEqual([false, false]);
+    expect(comparison.quotes.map((quote) => quote.missingCount)).toEqual([0, 0]);
+    expect(comparison.quotes[0].labels).toContain("Lowest comparable calculated cost");
+    expect(comparison.quotes[1].differenceFromLowest).toBe(12940);
+  });
+
   it("identifies the lowest comparable cost and differences", () => {
     const comparison = compareQuotes([input("a", 100), input("b", 125)]);
     expect(comparison.quotes[0].labels).toContain("Lowest comparable calculated cost");
