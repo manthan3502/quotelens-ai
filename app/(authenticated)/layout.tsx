@@ -1,10 +1,15 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { createClient } from "@/src/lib/supabase/server";
+import { hasSupabaseSessionCookie } from "@/src/lib/supabase/session";
 import { signOut } from "./actions";
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  if (!hasSupabaseSessionCookie(cookieStore.getAll())) redirect("/login");
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");

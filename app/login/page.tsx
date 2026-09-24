@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { createClient } from "@/src/lib/supabase/server";
+import { hasSupabaseSessionCookie } from "@/src/lib/supabase/session";
 import { safeRedirectPath } from "@/src/lib/navigation/safeRedirect";
 import { signIn, signUp } from "./actions";
 
@@ -10,9 +12,12 @@ type LoginPageProps = { searchParams: Promise<{ error?: string; message?: string
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const next = safeRedirectPath(params.next ?? null);
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) redirect(next);
+  const cookieStore = await cookies();
+  if (hasSupabaseSessionCookie(cookieStore.getAll())) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) redirect(next);
+  }
 
   return (
     <main className="container" style={{ minHeight: "100vh", display: "grid", gridTemplateRows: "76px 1fr", alignItems: "start" }}>

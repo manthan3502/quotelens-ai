@@ -108,6 +108,7 @@ Unit and integration tests use mocked Gemini responses. CI never needs a real Ge
 - [Architecture](docs/ARCHITECTURE.md)
 - [AI extraction design](docs/AI_DESIGN.md)
 - [Security model](docs/SECURITY.md)
+- [Deployment and release checklist](docs/DEPLOYMENT.md)
 - [Milestone build plan](docs/BUILD_PLAN.md)
 
 ## Sample quotations
@@ -122,7 +123,7 @@ Regenerate the samples with `python examples/quotations/generate_samples.py` whe
 
 ## Deployment
 
-Deploy the Next.js application to Vercel and use a hosted Supabase project. Configure all environment variables in the deployment dashboard, apply the migrations, and add the deployed `/auth/callback` URL to Supabase Auth. The quotation bucket must remain private.
+Follow the [deployment checklist](docs/DEPLOYMENT.md) for the exact Supabase, Vercel, migration, environment, and smoke-test steps. The quotation bucket must remain private.
 
 ## Limitations
 
@@ -133,7 +134,3 @@ Deploy the Next.js application to Vercel and use a hosted Supabase project. Conf
 - v1 supports PDF, PNG, JPG, and JPEG files up to 10 MB each.
 - v1 compares confirmed values within compatible currencies and does not fetch exchange rates.
 - Server upload limits imposed by a hosting provider may require direct-upload architecture for larger future limits.
-
-## Roadmap after v1
-
-Potential follow-up work includes CSV export, duplicate detection by file hash, comparison cloning, and better line-item matching. Email ingestion, ERP integration, team approval workflows, purchasing automation, and other enterprise features remain outside v1.

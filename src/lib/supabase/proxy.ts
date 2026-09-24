@@ -1,12 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseConfig } from "@/src/lib/supabase/env";
+import { hasSupabaseSessionCookie } from "@/src/lib/supabase/session";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
-  const hasSupabaseSession = request.cookies.getAll().some((cookie) =>
-    cookie.name.startsWith("sb-") && cookie.name.includes("-auth-token"),
-  );
+  const hasSupabaseSession = hasSupabaseSessionCookie(request.cookies.getAll());
   if (!hasSupabaseSession) return response;
 
   const { url, anonKey } = getSupabaseConfig();

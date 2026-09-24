@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useId, useState } from "react";
 import type { ExtractedQuotation, Money, QuoteLineItem } from "@/src/lib/ai/schema";
 import { initialReviewState, type ReviewState } from "@/src/lib/review/reviewState";
 
@@ -86,24 +86,33 @@ function changeCurrency(quote: ExtractedQuotation, currency: string | null): Ext
 }
 
 function TextInput({ label, value, onChange, placeholder }: { label: string; value: string | null | undefined; onChange: (value: string | null) => void; placeholder?: string }) {
-  return <div className="field"><label>{label}</label><input value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value || null)} /></div>;
+  const id = useId();
+  return <div className="field"><label htmlFor={id}>{label}</label><input id={id} value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value || null)} /></div>;
 }
 
 function NumberInput({ label, value, onChange, step = "0.01" }: { label: string; value: number | null | undefined; onChange: (value: number | null) => void; step?: string }) {
-  return <div className="field"><label>{label}</label><input type="number" min="0" step={step} value={numberValue(value)} onChange={(event) => onChange(parseNumber(event.target.value))} /></div>;
+  const id = useId();
+  return <div className="field"><label htmlFor={id}>{label}</label><input id={id} type="number" min="0" step={step} value={numberValue(value)} onChange={(event) => onChange(parseNumber(event.target.value))} /></div>;
 }
 
 function MoneyInput({ label, value, currency, onChange }: { label: string; value: Money; currency: string | null; onChange: (value: Money) => void }) {
+  const id = useId();
   return (
     <div className="field">
-      <label>{label}</label>
-      <div className="money-input"><input type="number" min="0" step="0.01" value={numberValue(value.amount)} onChange={(event) => onChange({ ...value, amount: parseNumber(event.target.value), currency })} /><span>{currency ?? "—"}</span></div>
+      <label htmlFor={id}>{label}</label>
+      <div className="money-input"><input id={id} type="number" min="0" step="0.01" value={numberValue(value.amount)} onChange={(event) => onChange({ ...value, amount: parseNumber(event.target.value), currency })} /><span aria-hidden="true">{currency ?? "—"}</span></div>
       {value.rawText ? <small className="muted">Source: {value.rawText}</small> : null}
     </div>
   );
 }
 
+function TextareaInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const id = useId();
+  return <div className="field"><label htmlFor={id}>{label}</label><textarea id={id} value={value} onChange={(event) => onChange(event.target.value)} /></div>;
+}
+
 export function ReviewQuotationForm({ initial, action, filename, verified }: { initial: ExtractedQuotation; action: ReviewAction; filename: string; verified: boolean }) {
+  const taxIncludedId = useId();
   const [quote, setQuote] = useState(() => normalizeQuotation(initial));
   const [state, formAction, pending] = useActionState(action, initialReviewState);
   const updateLine = (index: number, update: (item: QuoteLineItem) => QuoteLineItem) => setQuote((current) => ({ ...current, lineItems: current.lineItems.map((item, itemIndex) => itemIndex === index ? update(item) : item) }));
@@ -151,7 +160,7 @@ export function ReviewQuotationForm({ initial, action, filename, verified }: { i
         <TextInput label="Tax type" value={quote.tax.type} onChange={(type) => setQuote({ ...quote, tax: { ...quote.tax, type } })} />
         <NumberInput label="Tax %" value={quote.tax.percent} onChange={(percent) => setQuote({ ...quote, tax: { ...quote.tax, percent } })} />
         <MoneyInput label="Tax amount shown" value={quote.tax.amountShown ?? blankMoney(quote.currency)} currency={quote.currency} onChange={(amountShown) => setQuote({ ...quote, tax: { ...quote.tax, amountShown } })} />
-        <div className="field"><label>Tax included in price</label><select value={quote.tax.includedInPrice === null || quote.tax.includedInPrice === undefined ? "unknown" : String(quote.tax.includedInPrice)} onChange={(event) => setQuote({ ...quote, tax: { ...quote.tax, includedInPrice: event.target.value === "unknown" ? null : event.target.value === "true" } })}><option value="unknown">Not found</option><option value="false">No</option><option value="true">Yes</option></select></div>
+        <div className="field"><label htmlFor={taxIncludedId}>Tax included in price</label><select id={taxIncludedId} value={quote.tax.includedInPrice === null || quote.tax.includedInPrice === undefined ? "unknown" : String(quote.tax.includedInPrice)} onChange={(event) => setQuote({ ...quote, tax: { ...quote.tax, includedInPrice: event.target.value === "unknown" ? null : event.target.value === "true" } })}><option value="unknown">Not found</option><option value="false">No</option><option value="true">Yes</option></select></div>
         <MoneyInput label="Shipping" value={quote.shipping ?? blankMoney(quote.currency)} currency={quote.currency} onChange={(shipping) => setQuote({ ...quote, shipping })} />
         <MoneyInput label="Installation" value={quote.installation ?? blankMoney(quote.currency)} currency={quote.currency} onChange={(installation) => setQuote({ ...quote, installation })} />
         <MoneyInput label="Grand total shown" value={quote.grandTotalShown ?? blankMoney(quote.currency)} currency={quote.currency} onChange={(grandTotalShown) => setQuote({ ...quote, grandTotalShown })} />
@@ -166,12 +175,12 @@ export function ReviewQuotationForm({ initial, action, filename, verified }: { i
         <TextInput label="Warranty wording" value={quote.warranty.text} onChange={(text) => setQuote({ ...quote, warranty: { ...quote.warranty, text } })} />
         <TextInput label="Payment terms" value={quote.paymentTerms} onChange={(paymentTerms) => setQuote({ ...quote, paymentTerms })} />
       </div>
-      <div className="field"><label>Source notes, one per line</label><textarea value={(quote.notes ?? []).join("\n")} onChange={(event) => setQuote({ ...quote, notes: event.target.value.split("\n").map((note) => note.trim()).filter(Boolean) })} /></div>
+      <TextareaInput label="Source notes, one per line" value={(quote.notes ?? []).join("\n")} onChange={(value) => setQuote({ ...quote, notes: value.split("\n").map((note) => note.trim()).filter(Boolean) })} />
       </fieldset>
 
       <fieldset><legend>Extraction review</legend><div className="form-grid">
-        <div className="field"><label>Missing fields, one per line</label><textarea value={quote.missingFields.join("\n")} onChange={(event) => setQuote({ ...quote, missingFields: event.target.value.split("\n").map((value) => value.trim()).filter(Boolean) })} /></div>
-        <div className="field"><label>Ambiguous fields, one per line</label><textarea value={quote.ambiguousFields.join("\n")} onChange={(event) => setQuote({ ...quote, ambiguousFields: event.target.value.split("\n").map((value) => value.trim()).filter(Boolean) })} /></div>
+        <TextareaInput label="Missing fields, one per line" value={quote.missingFields.join("\n")} onChange={(value) => setQuote({ ...quote, missingFields: value.split("\n").map((item) => item.trim()).filter(Boolean) })} />
+        <TextareaInput label="Ambiguous fields, one per line" value={quote.ambiguousFields.join("\n")} onChange={(value) => setQuote({ ...quote, ambiguousFields: value.split("\n").map((item) => item.trim()).filter(Boolean) })} />
       </div>{quote.extractionWarnings.length ? <div className="warning-list"><strong>Extraction warnings</strong><ul>{quote.extractionWarnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div> : null}</fieldset>
 
       {state.message ? <p className={state.status === "error" ? "form-error" : "success-message"} role="status">{state.message}</p> : null}

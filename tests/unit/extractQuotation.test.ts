@@ -45,6 +45,17 @@ describe("quotation extraction service", () => {
     )).rejects.toMatchObject({ code: "rate_limited" });
   });
 
+  it("classifies an unexpected provider failure without a live request", async () => {
+    const generateContent = vi.fn().mockRejectedValue(new Error("upstream unavailable"));
+    await expect(extractQuotation(
+      { bytes: new Uint8Array([1]), mimeType: "application/pdf" },
+      { generateContent },
+    )).rejects.toMatchObject({
+      code: "api_unavailable",
+      userMessage: "Gemini could not process this file. Retry shortly.",
+    });
+  });
+
   it("requires a server API key when no generator is injected", async () => {
     const original = process.env.GEMINI_API_KEY;
     delete process.env.GEMINI_API_KEY;

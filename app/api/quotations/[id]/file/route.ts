@@ -1,10 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/src/lib/supabase/server";
+import { hasSupabaseSessionCookie } from "@/src/lib/supabase/session";
 
 type FileRouteProps = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, { params }: FileRouteProps) {
   const { id } = await params;
+  if (!hasSupabaseSessionCookie(request.cookies.getAll())) {
+    return NextResponse.redirect(new URL("/login?next=/dashboard", request.url));
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(new URL(`/login?next=/dashboard`, request.url));

@@ -18,6 +18,7 @@ export async function extractQuotationRecord(
   previousState: ExtractionState,
 ): Promise<ExtractionState> {
   void previousState;
+  const requestId = crypto.randomUUID();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/comparisons/${comparisonId}`);
@@ -76,6 +77,7 @@ export async function extractQuotationRecord(
     }
 
     console.info("quotation_extraction_completed", {
+      requestId,
       comparisonId,
       quotationId,
       userId: user.id,
@@ -99,6 +101,7 @@ export async function extractQuotationRecord(
       extraction_duration_ms: duration,
     }).eq("id", quotationId).eq("comparison_id", comparisonId);
     console.error("quotation_extraction_failed", {
+      requestId,
       comparisonId,
       quotationId,
       userId: user.id,

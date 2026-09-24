@@ -31,7 +31,7 @@ export function BasicComparison({ comparisonId, title, quotations, demo = false 
 
   return (
     <div className="container comparison-page">
-      <Link href="/dashboard" className="muted" style={{ fontSize: 14 }}>← Dashboard</Link>
+      <Link href={demo ? "/" : "/dashboard"} className="muted" style={{ fontSize: 14 }}>← {demo ? "Home" : "Dashboard"}</Link>
       <header className="comparison-header">
         <div><p className="eyebrow">Verified comparison</p><h1>{title}</h1><p className="muted">Calculated totals use confirmed values. Factual differences are shown without choosing a vendor.</p></div>
         <div className="comparison-actions"><PrintButton />{demo ? <Link className="button secondary" href="/login">Create your comparison</Link> : <Link className="button secondary" href={`/comparisons/${comparisonId}/review`}>Edit extracted data</Link>}</div>

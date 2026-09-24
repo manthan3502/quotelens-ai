@@ -34,9 +34,9 @@ Add factual warnings and labels, source-versus-computed mismatch handling, terms
 
 Add broader tests, GitHub Actions, sample quotations, printable reporting, security documentation, architecture documentation, and a complete README.
 
-## Day 7 — Release
+## Day 7 — Release (complete)
 
-Deploy, validate the sample demo, add screenshots or a GIF, fix release issues, review accessibility and responsiveness, and prepare `v1.0.0`.
+Validated the sample demo, added a screenshot, fixed release issues, reviewed keyboard labels and mobile overflow, documented deployment, and prepared `v1.0.0`. A live deployment remains an operator step because project credentials and hosting access are intentionally outside the repository.
 
 ## Scope boundaries
 
