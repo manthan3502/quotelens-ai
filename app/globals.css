@@ -249,17 +249,110 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 @media print {
-  body { background: white; color: black; font-size: 10pt; }
-  body > main > header, .comparison-page > a, .comparison-actions { display: none !important; }
-  .container, .comparison-page { width: 100%; padding: 0; }
-  .comparison-header { margin: 0 0 18px; }
-  .comparison-header h1 { font-size: 24pt; }
-  .summary-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .summary-card, .vendor-warning-card, .comparison-table-wrap { break-inside: avoid; box-shadow: none; }
-  .summary-card { min-height: 100px; padding: 10px; }
-  .comparison-table { min-width: 0; font-size: 7.5pt; }
-  .comparison-table th, .comparison-table td { padding: 7px; }
-  .comparison-section { margin-top: 18px; }
-  .warning-columns { grid-template-columns: repeat(3, 1fr); }
-  @page { size: landscape; margin: 12mm; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  html, body { width: auto; min-width: 0; background: white !important; }
+  body { color: black; font-size: 8.5pt; line-height: 1.35; }
+
+  body > main > header,
+  .comparison-page > a,
+  .comparison-actions,
+  .vendor-warning-card a { display: none !important; }
+
+  .container, .comparison-page {
+    width: auto !important;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .comparison-header {
+    display: block;
+    margin: 0 0 6mm;
+    break-after: avoid-page;
+  }
+  .comparison-header h1 { font-size: 22pt; letter-spacing: -0.035em; }
+  .comparison-header p:last-child { max-width: 190mm; margin-top: 3mm; }
+  .eyebrow { margin-bottom: 2mm; font-size: 7pt; }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2.5mm;
+    break-inside: avoid-page;
+  }
+  .summary-card {
+    min-width: 0;
+    min-height: 27mm;
+    padding: 3.5mm;
+    border-radius: 2mm;
+    box-shadow: none;
+    break-inside: avoid-page;
+  }
+  .summary-card strong { margin: 3mm 0 1mm; font-size: 10pt; overflow-wrap: anywhere; }
+
+  .comparison-section { margin-top: 6mm; }
+  .comparison-page > .comparison-section:nth-of-type(3) { break-before: page; }
+  .section-heading { margin-bottom: 3mm; break-after: avoid-page; }
+  .comparison-section h2 { font-size: 14pt; }
+
+  .comparison-table-wrap {
+    width: 100%;
+    overflow: visible !important;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .comparison-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 7pt;
+  }
+  .comparison-table thead { display: table-header-group; }
+  .comparison-table tr { break-inside: avoid-page; page-break-inside: avoid; }
+  .comparison-table th,
+  .comparison-table td {
+    min-width: 0;
+    padding: 2.2mm 1.8mm;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .comparison-table th { font-size: 6.5pt; letter-spacing: 0.025em; }
+  .vendor-table th:nth-child(1) { width: 17%; }
+  .vendor-table th:nth-child(2),
+  .vendor-table th:nth-child(3),
+  .vendor-table th:nth-child(4) { width: 12%; }
+  .vendor-table th:nth-child(5),
+  .vendor-table th:nth-child(6) { width: 9%; }
+  .vendor-table th:nth-child(7) { width: 23%; }
+  .vendor-table th:nth-child(8) { width: 6%; }
+  .table-labels .badge { max-width: 100%; white-space: normal; }
+  .line-comparison th:first-child { width: 25%; }
+
+  .warning-columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5mm;
+  }
+  .warning-columns::before {
+    content: "Factual warnings";
+    grid-column: 1 / -1;
+    color: var(--accent);
+    font-size: 7pt;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    break-after: avoid-page;
+  }
+  .vendor-warning-card {
+    min-width: 0;
+    padding: 3.5mm;
+    border-radius: 2mm;
+    box-shadow: none;
+    break-inside: avoid-page;
+  }
+  .vendor-warning-card > div { break-after: avoid-page; }
+  .vendor-warning-card details { display: none !important; }
+
+  @page { size: A4 landscape; margin: 10mm 12mm 12mm; }
 }
