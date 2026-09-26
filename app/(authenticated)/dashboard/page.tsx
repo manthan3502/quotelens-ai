@@ -1,3 +1,4 @@
+import { displayText } from "@/src/lib/review/displayText";
 import Link from "next/link";
 import { extractedQuotationSchema } from "@/src/lib/ai/schema";
 import { compareQuotes } from "@/src/lib/pricing/compareQuotes";
@@ -35,18 +36,18 @@ export default async function DashboardPage() {
           <h1 style={{ margin: 0, fontSize: "clamp(2.2rem, 6vw, 4.2rem)", lineHeight: 1, letterSpacing: "-0.055em" }}>Your comparisons</h1>
           <p className="muted" style={{ margin: "14px 0 0" }}>Signed in as {user?.email}</p>
         </div>
-        <Link className="button" href="/comparisons/new">+ New comparison</Link>
+        <Link className="button" href="/comparisons/new">+ Start a Comparison</Link>
       </section>
 
       <section style={{ marginTop: 44 }}>
         {error ? (
-          <div className="card" role="alert" style={{ padding: 22, color: "#8f2f1d" }}>We could not load your comparisons. Check the Supabase migration and try again.</div>
+          <div className="card" role="alert" style={{ padding: 22, color: "#8f2f1d" }}>We could not load your comparisons. Refresh the page and try again.</div>
         ) : comparisons.length === 0 ? (
           <div className="card" style={{ padding: "54px 28px", textAlign: "center" }}>
             <div aria-hidden="true" style={{ width: 58, height: 72, margin: "0 auto 20px", border: "2px solid var(--line)", borderRadius: 9, background: "linear-gradient(135deg, white 78%, var(--soft) 78%)" }} />
-            <h2 style={{ margin: 0, fontSize: 22 }}>Start with an empty comparison</h2>
-            <p className="muted" style={{ maxWidth: 450, margin: "10px auto 22px", lineHeight: 1.6 }}>Name the purchase you are evaluating, then add two to five vendor quotations.</p>
-            <Link className="button" href="/comparisons/new">Create comparison</Link>
+            <h2 style={{ margin: 0, fontSize: 22 }}>Compare your first quotations</h2>
+            <p className="muted" style={{ maxWidth: 450, margin: "10px auto 22px", lineHeight: 1.6 }}>Upload quotations from different vendors and see their prices, taxes, delivery, warranty and payment terms side by side.</p>
+            <Link className="button" href="/comparisons/new">+ Start a Comparison</Link>
           </div>
         ) : (
           <div className="card" style={{ overflow: "hidden" }}>
@@ -65,7 +66,7 @@ export default async function DashboardPage() {
                     {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(comparison.created_at))} · {comparison.quotations.length} quotation{comparison.quotations.length === 1 ? "" : "s"} · {vendorCount} vendor{vendorCount === 1 ? "" : "s"}{lowest?.calculated.computedGrandTotal !== null && lowest?.calculated.computedGrandTotal !== undefined && lowest.quote.currency ? ` · Lowest ${formatMoney(lowest.calculated.computedGrandTotal, lowest.quote.currency)}` : ""}
                   </span>
                 </div>
-                <span className="badge">{comparison.status}</span>
+                <span className="badge">{displayText(comparison.status)}</span>
               </Link>;
             })}
           </div>

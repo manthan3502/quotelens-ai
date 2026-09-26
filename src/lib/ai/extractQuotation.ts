@@ -45,12 +45,12 @@ function classifyApiError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   const normalized = message.toLowerCase();
   if (normalized.includes("429") || normalized.includes("quota") || normalized.includes("rate")) {
-    return new QuotationExtractionError("rate_limited", message, "Gemini is temporarily rate limited. Retry in a moment.");
+    return new QuotationExtractionError("rate_limited", message, "Quotation reading is busy. Please try again in a moment.");
   }
   if (normalized.includes("timeout") || normalized.includes("timed out") || normalized.includes("abort")) {
-    return new QuotationExtractionError("timeout", message, "Extraction timed out. Retry the quotation.");
+    return new QuotationExtractionError("timeout", message, "Reading took too long. Please try again.");
   }
-  return new QuotationExtractionError("api_unavailable", message, "Gemini could not process this file. Retry shortly.");
+  return new QuotationExtractionError("api_unavailable", message, "We could not read this file. Please try again shortly.");
 }
 
 export function parseExtractionResponse(text: string): ExtractedQuotation {
@@ -61,7 +61,7 @@ export function parseExtractionResponse(text: string): ExtractedQuotation {
     throw new QuotationExtractionError(
       "invalid_response",
       error instanceof Error ? error.message : "Invalid JSON",
-      "Gemini returned an invalid structured response. Retry the quotation.",
+      "We could not read the quotation clearly. Please try again.",
     );
   }
 
@@ -70,7 +70,7 @@ export function parseExtractionResponse(text: string): ExtractedQuotation {
     throw new QuotationExtractionError(
       "invalid_response",
       parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; "),
-      "Gemini returned incomplete or invalid quotation data. Retry the quotation.",
+      "Some quotation details could not be read. Please try again.",
     );
   }
   return parsed.data;
@@ -85,7 +85,7 @@ export async function extractQuotation(
     throw new QuotationExtractionError(
       "configuration",
       "GEMINI_API_KEY is missing",
-      "Gemini is not configured. Add GEMINI_API_KEY to the server environment.",
+      "Quotation reading is not available yet. Please contact the person who manages QuoteLens.",
     );
   }
 
@@ -123,7 +123,7 @@ export async function extractQuotation(
     throw new QuotationExtractionError(
       "invalid_response",
       "Gemini response did not contain text",
-      "Gemini returned an empty response. Retry the quotation.",
+      "No details could be read from this quotation. Please try again.",
     );
   }
   return parseExtractionResponse(response.text);

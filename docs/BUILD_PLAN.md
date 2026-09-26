@@ -38,6 +38,10 @@ Add broader tests, GitHub Actions, sample quotations, printable reporting, secur
 
 Validated the sample demo, added a screenshot, fixed release issues, reviewed keyboard labels and mobile overflow, documented deployment, and prepared `v1.0.0`. A live deployment remains an operator step because project credentials and hosting access are intentionally outside the repository.
 
+## Final UI polish — complete
+
+Added the Upload → Review → Compare → Export guide, plain-language actions and status labels, clearer first-use and upload guidance, grouped review fields, mobile spacing, and updated demo documentation and screenshot. This work keeps the v1 workflow and existing release history intact; deployment remains a separate step.
+
 ## Scope boundaries
 
 - Gemini extracts facts; deterministic TypeScript will calculate money.

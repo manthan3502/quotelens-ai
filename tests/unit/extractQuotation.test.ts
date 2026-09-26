@@ -52,7 +52,7 @@ describe("quotation extraction service", () => {
       { generateContent },
     )).rejects.toMatchObject({
       code: "api_unavailable",
-      userMessage: "Gemini could not process this file. Retry shortly.",
+      userMessage: "We could not read this file. Please try again shortly.",
     });
   });
 

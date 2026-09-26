@@ -1,6 +1,10 @@
 # QuoteLens AI
 
-QuoteLens AI turns inconsistent vendor PDF and image quotations into a structured, human-verified, side-by-side comparison of cost and commercial terms. Gemini reads the documents, Zod validates the response, the user corrects every important field, and deterministic TypeScript calculates the totals.
+QuoteLens AI helps businesses compare vendor quotations in one place. Upload PDF or image files, check the details, compare total costs and terms, then print or save the report as a PDF.
+
+**Upload → Review → Compare → Export**
+
+AI reads the different document layouts so users do not have to copy every detail by hand. People review those details before deterministic TypeScript calculates the totals. QuoteLens highlights factual differences; it does not choose a vendor for you.
 
 ## Why I built it
 
@@ -13,6 +17,13 @@ Run the project and open [`/demo`](http://localhost:3000/demo) for a credential-
 ![QuoteLens sample comparison](docs/images/demo-comparison.png)
 
 ## How it works
+
+1. **Upload:** start a comparison and add 2–5 quotations. Choose **Read Quotation** for each file.
+2. **Review:** check vendor details, products and prices, taxes and charges, delivery and warranty. Correct anything that looks wrong, then confirm each quotation.
+3. **Compare:** see calculated totals, the totals written in each quotation, extra costs, and things to check.
+4. **Export:** use **Print / Export PDF** to save or share an A4 report.
+
+The app shows the current step and what to do next. See the [user-flow guide](docs/USER_FLOW.md) for the complete walkthrough.
 
 ```text
 Quotation PDF/Image

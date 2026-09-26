@@ -1,3 +1,4 @@
+import { JourneySteps } from "@/components/comparison/journey-steps";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ReviewQuotationForm } from "@/components/quotation/review-quotation-form";
@@ -34,10 +35,11 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
 
   return (
     <div className="container review-page">
-      <Link href={`/comparisons/${id}`} className="muted" style={{ fontSize: 14 }}>← Comparison workspace</Link>
+      <Link href={`/comparisons/${id}`} className="muted" style={{ fontSize: 14 }}>← Back to Comparison</Link>
+      <JourneySteps current={2} />
       <header className="review-page-header">
-        <div><p className="eyebrow">Human verification</p><h1>Review {comparison.title}</h1><p className="muted">Correct every extracted value before confirming it. Calculations only use verified data.</p></div>
-        <span className="badge">{rows.filter((row) => row.verified_json).length}/{rows.length} verified</span>
+        <div><p className="eyebrow">Review Quotation Details</p><h1>Review {comparison.title}</h1><p className="muted">Please check the information below. We read these details from your quotation automatically. Correct anything that looks wrong, then confirm.</p></div>
+        <span className="badge">{rows.filter((row) => row.verified_json).length}/{rows.length} confirmed</span>
       </header>
 
       <nav className="review-jump" aria-label="Quotation review navigation">
@@ -55,7 +57,7 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
                 action={verifyQuotation.bind(null, id, quotation.id)}
               />
             ) : (
-              <div className="form-error">Stored extraction data is invalid. Return to the workspace and retry extraction.</div>
+              <div className="form-error">We could not read these saved details. Go back to the comparison and try reading the quotation again.</div>
             )}
           </section>
         ))}

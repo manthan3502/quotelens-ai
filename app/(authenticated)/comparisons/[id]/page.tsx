@@ -1,3 +1,5 @@
+import { JourneySteps } from "@/components/comparison/journey-steps";
+import { displayText } from "@/src/lib/review/displayText";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UploadForm } from "@/components/quotation/upload-form";
@@ -49,11 +51,13 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
       <Link href="/dashboard" className="muted" style={{ fontSize: 14 }}>← Dashboard</Link>
       <section style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 20, flexWrap: "wrap", marginTop: 36 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span className="badge">{comparison.status}</span><span className="muted" style={{ fontSize: 13 }}>{new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(comparison.created_at))}</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}><span className="badge">{displayText(comparison.status)}</span><span className="muted" style={{ fontSize: 13 }}>{new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(comparison.created_at))}</span></div>
           <h1 style={{ margin: 0, maxWidth: 780, fontSize: "clamp(2.2rem, 6vw, 4rem)", lineHeight: 1.02, letterSpacing: "-0.055em" }}>{comparison.title}</h1>
           {comparison.description ? <p className="muted" style={{ maxWidth: 680, margin: "14px 0 0", lineHeight: 1.6 }}>{comparison.description}</p> : null}
         </div>
       </section>
+
+      <JourneySteps current={1} />
 
       {uploadedCount > 0 ? <p className="success-message" role="status">{uploadedCount} quotation{uploadedCount === 1 ? "" : "s"} uploaded securely.</p> : null}
       {query.deleted === "1" ? <p className="success-message" role="status">Quotation deleted.</p> : null}
@@ -61,8 +65,8 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
 
       <section style={{ marginTop: 42 }}>
         <div className="section-heading">
-          <div><p className="eyebrow">Source documents</p><h2 style={{ margin: 0, fontSize: 26 }}>Quotations <span className="muted">{quotations.length}/{MAX_QUOTATIONS}</span></h2></div>
-          <span className="privacy-note">Private storage</span>
+          <div><p className="eyebrow">Your files</p><h2 style={{ margin: 0, fontSize: 26 }}>Quotations <span className="muted">{quotations.length}/{MAX_QUOTATIONS}</span></h2></div>
+          <span className="privacy-note">Only you can access these files</span>
         </div>
 
         {quotations.length > 0 ? (
@@ -76,7 +80,7 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
                   {quotation.extraction_error ? <span className="status-error">{quotation.extraction_error}</span> : null}
                 </div>
                 <div className="file-actions">
-                  {quotation.extraction_status !== "completed" ? <ExtractionButton action={extractQuotationRecord.bind(null, id, quotation.id)} retry={quotation.extraction_status === "failed"} /> : <span className="badge">Extracted</span>}
+                  {quotation.extraction_status !== "completed" ? <ExtractionButton action={extractQuotationRecord.bind(null, id, quotation.id)} retry={quotation.extraction_status === "failed"} /> : <span className="badge">Ready to Review</span>}
                   <a className="button secondary compact" href={`/api/quotations/${quotation.id}/file`} target="_blank" rel="noreferrer">Preview</a>
                   <a className="button ghost compact" href={`/api/quotations/${quotation.id}/file?download=1`}>Download</a>
                   <DeleteQuotationButton action={deleteQuotation.bind(null, id, quotation.id)} filename={quotation.original_filename} />
@@ -89,14 +93,14 @@ export default async function ComparisonPage({ params, searchParams }: Compariso
         {quotations.length < MAX_QUOTATIONS ? (
           <div style={{ marginTop: quotations.length > 0 ? 22 : 0 }}><UploadForm action={uploadAction} existingCount={quotations.length} /></div>
         ) : (
-          <div className="limit-message"><strong>Five quotations added.</strong><span className="muted">This comparison has reached the v1 limit.</span></div>
+          <div className="limit-message"><strong>Five quotations added.</strong><span className="muted">You can compare up to five quotations at a time.</span></div>
         )}
       </section>
 
       {quotations.length >= 2 ? (
         <section className="next-step-card">
-          <div><p className="eyebrow">Extraction</p><h2 style={{ margin: 0, fontSize: 22 }}>{quotations.every((quotation) => quotation.extraction_status === "completed") ? "All quotations are ready for review" : "Extract each source document"}</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Gemini extracts factual fields into a schema. You will verify every value before calculations.</p></div>
-          {quotations.every((quotation) => quotation.extraction_status === "completed") ? <Link className="button" href={`/comparisons/${id}/review`}>Review extracted data</Link> : <span className="badge">{quotations.filter((quotation) => quotation.extraction_status === "completed").length}/{quotations.length} extracted</span>}
+          <div><p className="eyebrow">Next step</p><h2 style={{ margin: 0, fontSize: 22 }}>{quotations.every((quotation) => quotation.extraction_status === "completed") ? "All quotations are ready for review" : "Read your quotations"}</h2><p className="muted" style={{ margin: "8px 0 0", lineHeight: 1.6 }}>Choose Read Quotation next to each file. Once they are ready, check the details before comparing vendors.</p></div>
+          {quotations.every((quotation) => quotation.extraction_status === "completed") ? <Link className="button" href={`/comparisons/${id}/review`}>Review Quotation Details</Link> : <span className="badge">{quotations.filter((quotation) => quotation.extraction_status === "completed").length}/{quotations.length} ready to review</span>}
         </section>
       ) : null}
     </div>

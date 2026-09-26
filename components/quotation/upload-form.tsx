@@ -39,13 +39,15 @@ export function UploadForm({ action, existingCount }: { action: UploadAction; ex
 
   return (
     <form action={formAction} className="upload-panel" aria-busy={pending}>
+      <div className="upload-intro"><h3>Upload vendor quotations</h3><p>Upload 2–5 quotations. QuoteLens will read prices, taxes, delivery, warranty and other details for you to check.</p></div>
       <label className="upload-dropzone">
         <span className="upload-icon" aria-hidden="true">↑</span>
-        <span style={{ fontWeight: 800 }}>Choose quotation files</span>
+        <span style={{ fontWeight: 800 }}>Choose Quotations</span>
         <span className="muted" style={{ fontSize: 14 }}>
           {existingCount === 0 ? "Select 2–5 files" : `Add up to ${remaining} more`} · PDF, PNG, JPG, or JPEG · {MAX_QUOTATION_SIZE_LABEL} each
         </span>
         <input
+          aria-label="Choose Quotations"
           name="files"
           type="file"
           accept="application/pdf,image/png,image/jpeg,.pdf,.png,.jpg,.jpeg"
@@ -68,7 +70,7 @@ export function UploadForm({ action, existingCount }: { action: UploadAction; ex
       {selected.length > 0 && selected.length < minimum ? <p className="form-hint">Select at least {minimum} files to begin this comparison.</p> : null}
 
       <button className="button" type="submit" disabled={pending || selected.length === 0 || invalidCount || Boolean(clientError)}>
-        {pending ? "Uploading securely…" : selected.length ? `Upload ${selected.length} quotation${selected.length === 1 ? "" : "s"}` : "Select files to upload"}
+        {pending ? "Uploading securely…" : selected.length ? `Upload ${selected.length} quotation${selected.length === 1 ? "" : "s"}` : "Choose files above to continue"}
       </button>
     </form>
   );

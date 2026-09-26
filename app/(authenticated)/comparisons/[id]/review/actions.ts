@@ -1,5 +1,6 @@
 "use server";
 
+import { reviewFieldLabel } from "@/src/lib/review/displayText";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { extractedQuotationSchema } from "@/src/lib/ai/schema";
@@ -29,7 +30,7 @@ export async function verifyQuotation(
   const parsed = extractedQuotationSchema.safeParse(json);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
-    return { status: "error", message: `Check ${first.path.join(".") || "the form"}: ${first.message}` };
+    return { status: "error", message: `Please check ${reviewFieldLabel(first.path.join(".")) || "the form"}. Use valid text or a non-negative number; percentages must be between 0 and 100.` };
   }
 
   const { error } = await supabase.from("quotations").update({
@@ -37,7 +38,7 @@ export async function verifyQuotation(
     verified_at: new Date().toISOString(),
     vendor_name: parsed.data.vendor.name,
   }).eq("id", quotationId).eq("comparison_id", comparisonId);
-  if (error) return { status: "error", message: "Could not save the verified quotation. Apply the latest migration and retry." };
+  if (error) return { status: "error", message: "We could not save your changes. Please try again." };
 
   const { data: quotations } = await supabase
     .from("quotations")
@@ -52,5 +53,5 @@ export async function verifyQuotation(
   }
 
   revalidatePath(`/comparisons/${comparisonId}/review`);
-  return { status: "success", message: "Verified quotation saved." };
+  return { status: "success", message: "Quotation confirmed. Check the remaining quotations to see your comparison." };
 }

@@ -11,7 +11,7 @@ export function ExtractionButton({ action, retry = false }: { action: Extraction
   return (
     <form action={formAction} className="extraction-control">
       <button className="button compact" type="submit" disabled={pending}>
-        {pending ? "Extracting…" : retry ? "Retry extraction" : "Extract data"}
+        {pending ? "Reading quotation…" : retry ? "Try Again" : "Read Quotation"}
       </button>
       {state.message ? <span className={state.status === "error" ? "delete-error" : "extraction-success"} role="status">{state.message}</span> : null}
     </form>

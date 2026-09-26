@@ -43,7 +43,7 @@ export async function extractQuotationRecord(
     extraction_model: model,
     extraction_attempted_at: new Date().toISOString(),
   }).eq("id", quotationId).eq("comparison_id", comparisonId);
-  if (statusError) return { status: "error", message: "Could not start extraction. Apply the latest database migration and retry." };
+  if (statusError) return { status: "error", message: "We could not start reading this quotation. Please try again." };
 
   await supabase.from("comparisons").update({ status: "extracting" }).eq("id", comparisonId);
 
@@ -86,14 +86,14 @@ export async function extractQuotationRecord(
     });
     revalidatePath(`/comparisons/${comparisonId}`);
     revalidatePath("/dashboard");
-    return { status: "success", message: "Quotation extracted and validated." };
+    return { status: "success", message: "Your quotation is ready to review." };
   } catch (error) {
     const duration = Date.now() - startedAt;
     const userMessage = error instanceof QuotationExtractionError
       ? error.userMessage
       : error instanceof Error && error.message === "The private quotation file could not be read."
         ? "The private file could not be read. Re-upload it and try again."
-        : "Extraction failed. Retry the quotation.";
+        : "We could not read this quotation. Please try again.";
 
     await supabase.from("quotations").update({
       extraction_status: "failed",

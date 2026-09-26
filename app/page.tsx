@@ -9,17 +9,17 @@ export default function Home() {
         <Link className="button secondary" href="/login">Sign in</Link>
       </header>
 
-      <section className="container" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: 64, alignItems: "center", padding: "88px 0 96px" }}>
+      <section className="container" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 64, alignItems: "center", padding: "88px 0 96px" }}>
         <div>
           <p className="eyebrow">Quotation comparison, clarified</p>
           <h1 style={{ margin: 0, maxWidth: 680, fontSize: "clamp(2.8rem, 7vw, 5.7rem)", lineHeight: 0.96, letterSpacing: "-0.065em" }}>
             See the real cost behind every quote.
           </h1>
           <p className="muted" style={{ maxWidth: 610, margin: "28px 0 32px", fontSize: "1.14rem", lineHeight: 1.7 }}>
-            Upload vendor quotations and turn inconsistent documents into one clear, reviewable comparison of pricing and commercial terms.
+            Compare vendor prices, taxes, delivery and warranty in one place. Upload your quotations, check the details, and see what each offer really costs.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Link className="button" href="/login">Try QuoteLens</Link>
+            <Link className="button" href="/login">Start a Comparison</Link>
             <Link className="button secondary" href="/demo">View sample comparison</Link>
           </div>
         </div>
@@ -45,13 +45,13 @@ export default function Home() {
 
       <section id="workflow" style={{ borderTop: "1px solid var(--line)", background: "white" }}>
         <div className="container" style={{ padding: "72px 0" }}>
-          <p className="eyebrow">A transparent workflow</p>
+          <p className="eyebrow">Four simple steps</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
-            {["Upload quotations", "Review extracted facts", "Compare calculated costs"].map((step, index) => (
+            {["Upload", "Review", "Compare", "Export"].map((step, index) => (
               <div key={step} style={{ borderTop: "2px solid var(--ink)", paddingTop: 18 }}>
                 <span className="muted">0{index + 1}</span>
                 <h2 style={{ margin: "20px 0 8px", fontSize: 20 }}>{step}</h2>
-                <p className="muted" style={{ margin: 0, lineHeight: 1.6 }}>{["Add PDF or image quotations from different vendors.", "Confirm every extracted value before it affects a result.", "Use deterministic totals and clear factual differences."][index]}</p>
+                <p className="muted" style={{ margin: 0, lineHeight: 1.6 }}>{["Add 2–5 PDF or image quotations from your vendors.", "Check the details we read and correct anything that looks wrong.", "See total costs, delivery, warranty and payment terms side by side.", "Print your comparison or save it as a PDF to share."][index]}</p>
               </div>
             ))}
           </div>
